@@ -1,3 +1,4 @@
+import { environment } from './../environments/environment.prod';
 import {Component, OnInit} from '@angular/core';
 import {TodoService} from './base.service/todo.service';
 import {Todo} from './base.service/Todo.model';
@@ -17,5 +18,6 @@ export class AppComponent implements OnInit {
     this.userService.delete(toDo.id).subscribe((toDoDelete: Todo) => console.log('save', toDoDelete));
     this.userService.update(toDo.id, toDo).subscribe((toDoUpdade: Todo) => console.log('update', toDoUpdade));
     this.userService.findAll().subscribe((todos: Todo[]) => console.log('findAll', todos));
+    this.userService.search('hello').subscribe();
   }
 }

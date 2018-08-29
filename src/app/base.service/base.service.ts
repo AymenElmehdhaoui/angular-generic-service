@@ -12,8 +12,8 @@ export class BaseService<T> implements IBase<T> {
     this.base = environment.globalUrl.concat(this.base);
   }
 
-  findOne(id: any): Observable<T> {
-    return this.pipeRequestObject(this.http.get<T>(this.base + '/' + id));
+  findOne(id: any, options = {}): Observable<T> {
+    return this.pipeRequestObject(this.http.get<T>(this.base + '/' + id, options));
   }
 
   save(t: T, options = {}): Observable<T> {
@@ -35,6 +35,17 @@ export class BaseService<T> implements IBase<T> {
 
   delete(id: any, options = {}) {
     return this.pipeRequestObject(this.http.delete<T>(this.base + '/' + id, options));
+  }
+
+  genericRequest(method: string, api: string, options?: any): Observable<any> {
+    let opArray = [method, api, options];
+    opArray = opArray.filter((x) => {
+      return (x !== (undefined || null || '' || {}));
+    });
+    return this.http.request(method, api, options)
+      .pipe(
+        ...this.pipeMethods
+      );
   }
 
   protected extractData(res: Response) {
