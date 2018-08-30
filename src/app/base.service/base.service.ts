@@ -5,7 +5,6 @@ import {Observable, throwError} from 'rxjs';
 import {environment} from '../../environments/environment';
 
 export class BaseService<T> implements IBase<T> {
-
   private pipeMethods = [map(this.extractData), catchError(this.handleError)];
 
   constructor(protected base: string, protected http: HttpClient) {
@@ -13,17 +12,10 @@ export class BaseService<T> implements IBase<T> {
   }
 
   findOne(id: any, options = {}): Observable<T> {
-    return this.pipeRequestObject(this.http.get<T>(this.base + '/' + id, options));
-  }
-
-  save(t: T, options = {}): Observable<T> {
-    return this.pipeRequestObject(
-      this.http.post<T>(this.base, t, options)
-    );
-  }
-
-  update(id: any, t: T, options = {}): Observable<T> {
-    return this.pipeRequestObject(this.http.put<T>(this.base + '/' + id, t, options));
+    return this.http.get<T>(this.base + '/' + id, options)
+      .pipe(
+        ...this.pipeMethods
+      );
   }
 
   findAll(options = {}): Observable<T[]> {
@@ -33,15 +25,28 @@ export class BaseService<T> implements IBase<T> {
       );
   }
 
-  delete(id: any, options = {}) {
-    return this.pipeRequestObject(this.http.delete<T>(this.base + '/' + id, options));
+  save(t: T, options = {}): Observable<T> {
+    return this.http.post<T>(this.base, t, options)
+      .pipe(
+        ...this.pipeMethods
+      );
   }
 
-  genericRequest(method: string, api: string, options?: any): Observable<any> {
-    let opArray = [method, api, options];
-    opArray = opArray.filter((x) => {
-      return (x !== (undefined || null || '' || {}));
-    });
+  update(id: any, t: T, options = {}): Observable<T> {
+    return this.http.put<T>(this.base + '/' + id, t, options)
+      .pipe(
+        ...this.pipeMethods
+      );
+  }
+
+  delete(id: any, options?: any): Observable<T> {
+    return this.http.delete<T>(this.base + '/' + id, options)
+      .pipe(
+        ...this.pipeMethods
+      );
+  }
+
+  genericRequest(method: string, api: string, options: any = {}): Observable<any> {
     return this.http.request(method, api, options)
       .pipe(
         ...this.pipeMethods
@@ -64,11 +69,4 @@ export class BaseService<T> implements IBase<T> {
 
     return throwError(msg);
   }
-
-  private pipeRequestObject(request: Observable<T>): Observable<T> {
-    return request.pipe(
-      ...this.pipeMethods
-    );
-  }
-
 }
